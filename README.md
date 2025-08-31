@@ -7,10 +7,12 @@
 - Install Go v1.25 (for vanilla/local development)
 
 > **Note:**  
-> Only Go Fiber is installed in this repository.
-
-#### **Todo:** Add PostgreSQL for local development
-
+> Go Fiber & PostgreSQL is included for local development using  devcontainer
+> PostgreSQL env credential :
+> - POSTGRES_USER= abc
+> - POSTGRES_PASSWORD= password
+> - POSTGRES_DB= db-fitbyte-dev
+> - ports= 5432
 ---
 
 ## Getting Started

@@ -9,3 +9,18 @@ services:
     command: sleep infinity
     ports:
       - "3000:3000"
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: abc
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: db-fitbyte-dev
+    ports:
+      - "5433:5432"   # host:container mapping
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
