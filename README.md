@@ -25,13 +25,14 @@
     ```
 
 2. **Open in a Dev Container**
-    - Open the project in a [Dev Container](https://containers.dev/) for a ready-to-use development environment.
+    
+    Open the project in a [Dev Container](https://containers.dev/) for a ready-to-use development environment.
     - Install the "Dev Containers" extension in VS Code.
     - Press `CTRL + SHIFT + P`, then select `Rebuild and Reopen in Container` (or `Reopen in Container`).
 
 3. **Start Developing**
     ```bash
-    # Run development using hot reload
+    # Run development using hot reload inside dev container shell
     air
     # Open http://localhost:3000 for web view
     ```
@@ -46,7 +47,9 @@
     cd go-fitbyte
     ```
 
-2. **Install Go**
+2. **Install Go v1.25**
+
+    https://go.dev/dl/
 
 3. **Start Developing**
     ```bash
