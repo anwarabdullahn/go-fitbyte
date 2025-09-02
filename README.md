@@ -38,7 +38,6 @@
     air
     # Open http://localhost:3000 for web view
     ```
-
 ---
 
 ### For Vanilla Developers 🍦
