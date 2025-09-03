@@ -1,44 +1,42 @@
 package main
 
 import (
-	"go-fitbyte/src/api/routes"
-	"go-fitbyte/src/config"
-	"go-fitbyte/src/pkg/book"
-	"go-fitbyte/src/pkg/entities"
 	"log"
 
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
+	"go-fitbyte/src/api/routes"
+	"go-fitbyte/src/config"
+	"go-fitbyte/src/pkg/auth"
+	"go-fitbyte/src/pkg/entities"
 )
 
 func main() {
+	// Load config.yaml pake Viper
+	v := config.NewViper()
 
-	viperConfig := config.NewViper()
-	app := config.NewFiber(viperConfig)
-	port := viperConfig.GetString("server.port")
-	db := config.NewGorm(viperConfig)
+	// Init DB (GORM)
+	db := config.NewGorm(v)
 
-	// Auto-migrate the Book entity
-	err := db.AutoMigrate(&entities.Book{})
-	if err != nil {
-		log.Fatal("Failed to migrate database:", err)
+	// Migrate tabel User
+	if err := db.AutoMigrate(&entities.User{}); err != nil {
+		log.Fatal("failed to migrate:", err)
 	}
 
-	// Initialize book service with GORM
-	bookRepo := book.NewRepo(db)
-	bookService := book.NewService(bookRepo)
+	// Init Auth Service
+	authService := auth.NewService(db)
 
-	app.Use(cors.New())
+	// Init Fiber
+	app := config.NewFiber(v)
 
-	app.Get("/", func(ctx *fiber.Ctx) error {
-		return ctx.Send([]byte("Hello World"))
-	})
+	// Register routes
+	api := app.Group("/api")
+	routes.AuthRouter(api, authService)
 
-	api := app.Group("/api/v1")
-	routes.BookRouter(api, bookService)
-
+	// Run server
+	port := v.GetString("server.port")
 	if port == "" {
-		port = "8080"
+		port = "3000"
 	}
-	log.Fatal(app.Listen(":" + port))
+	if err := app.Listen(":" + port); err != nil {
+		log.Fatal(err)
+	}
 }
