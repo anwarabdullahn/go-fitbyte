@@ -3,11 +3,9 @@ package main
 import (
 	"go-fitbyte/src/api/routes"
 	"go-fitbyte/src/config"
-	"go-fitbyte/src/pkg/book"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 func main() {
@@ -20,18 +18,14 @@ func main() {
 		log.Printf("Failed to initialize Swagger: %v", err)
 	}
 
-	// Initialize book service with GORM
-	bookRepo := book.NewRepo(db)
-	bookService := book.NewService(bookRepo)
-
-	app.Use(cors.New())
-
+	// Health check endpoint
 	app.Get("/", func(ctx *fiber.Ctx) error {
 		return ctx.Send([]byte("Hello World"))
 	})
 
-	api := app.Group("/api/v1")
-	routes.BookRouter(api, bookService)
+	// Initialize all services
+	services := config.InitServices(db)
+	routes.SetupRoutes(app, services)
 
 	log.Fatal(app.Listen(":" + port))
 }
