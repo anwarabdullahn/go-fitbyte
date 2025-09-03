@@ -21,3 +21,10 @@ database:
   host: "localhost"
   ports: 5432
   maxConnections: 10
+
+swagger:
+  title: "Go-FitByte API Documentation"
+  path: "swagger"
+  base_path: "/"
+  file_path: "./docs/swagger.json"
+  cache_age: 86400

@@ -11,5 +11,4 @@ CREATE TABLE "profiles" (
   "imageUri" varchar
 );
 
-
 ALTER TABLE "profiles" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");

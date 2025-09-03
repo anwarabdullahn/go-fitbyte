@@ -4,10 +4,8 @@ import (
 	"go-fitbyte/src/api/routes"
 	"go-fitbyte/src/config"
 	"go-fitbyte/src/pkg/book"
-	"go-fitbyte/src/pkg/entities"
 	"log"
 
-	"github.com/gofiber/contrib/swagger"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
@@ -18,11 +16,8 @@ func main() {
 	app := config.NewFiber(viperConfig)
 	port := viperConfig.GetString("server.port")
 	db := config.NewGorm(viperConfig)
-
-	// Auto-migrate the Book entity
-	err := db.AutoMigrate(&entities.Book{})
-	if err != nil {
-		log.Fatal("Failed to migrate database:", err)
+	if err := config.NewSwagger(app); err != nil {
+		log.Printf("Failed to initialize Swagger: %v", err)
 	}
 
 	// Initialize book service with GORM
@@ -30,13 +25,6 @@ func main() {
 	bookService := book.NewService(bookRepo)
 
 	app.Use(cors.New())
-	app.Use(swagger.New(swagger.Config{
-		BasePath: "/",
-		FilePath: "./docs/swagger.json",
-		Path:     "swagger",
-		Title:    "Swagger API Docs",
-		CacheAge: 86400,
-	}))
 
 	app.Get("/", func(ctx *fiber.Ctx) error {
 		return ctx.Send([]byte("Hello World"))
