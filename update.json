@@ -1,0 +1,12 @@
+curl -X PUT http://localhost:3000/api/v1/user \
+-H "Content-Type: application/json" \
+-d '{   
+    "name": "Testin data",
+    "password": "12345",
+    "preference": "CARDIO",
+    "weightUnit": "KG",
+    "heightUnit": "CM",
+    "weight": 55,
+    "height": 170,
+    "imageUri": ""
+  }'

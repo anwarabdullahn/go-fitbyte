@@ -12,6 +12,16 @@ import (
 )
 
 // AddBook is handler/controller which creates Books in the BookShop
+// @Summary      Create a new book
+// @Description  Add a new book to the collection
+// @Tags         Books
+// @Accept       json
+// @Produce      json
+// @Param        book  body      entities.Book  true  "Book object"
+// @Success      200   {object}  map[string]interface{}
+// @Failure      400   {object}  map[string]interface{}
+// @Failure      500   {object}  map[string]interface{}
+// @Router       /api/v1/books [post]
 func AddBook(service book.Service) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var requestBody entities.Book
@@ -76,6 +86,14 @@ func RemoveBook(service book.Service) fiber.Handler {
 }
 
 // GetBooks is handler/controller which lists all Books from the BookShop
+// @Summary      Get all books
+// @Description  Retrieve a list of all books
+// @Tags         Books
+// @Accept       json
+// @Produce      json
+// @Success      200   {object}  map[string]interface{}
+// @Failure      500   {object}  map[string]interface{}
+// @Router       /api/v1/books [get]
 func GetBooks(service book.Service) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		fetched, err := service.FetchBooks()

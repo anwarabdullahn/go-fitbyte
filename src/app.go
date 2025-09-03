@@ -5,6 +5,7 @@ import (
 	"go-fitbyte/src/config"
 	"go-fitbyte/src/pkg/book"
 	"go-fitbyte/src/pkg/entities"
+	"go-fitbyte/src/pkg/user"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
@@ -28,6 +29,9 @@ func main() {
 	bookRepo := book.NewRepo(db)
 	bookService := book.NewService(bookRepo)
 
+	profileRepo := user.NewRepo(db)
+	profileService := user.NewService(profileRepo)
+
 	app.Use(cors.New())
 
 	app.Get("/", func(ctx *fiber.Ctx) error {
@@ -36,6 +40,7 @@ func main() {
 
 	api := app.Group("/api/v1")
 	routes.BookRouter(api, bookService)
+	routes.ProfileRouter(api, profileService)
 
 	if port == "" {
 		port = "8080"
