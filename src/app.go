@@ -1,49 +1,45 @@
 package main
 
 import (
+	"log"
+	"time"
+
 	"go-fitbyte/src/api/routes"
 	"go-fitbyte/src/config"
-	"go-fitbyte/src/pkg/book"
+	"go-fitbyte/src/pkg/auth"
 	"go-fitbyte/src/pkg/entities"
-	"log"
-
-	"github.com/gofiber/contrib/swagger"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 func main() {
+	// Load config.yaml pake Viper
+	v := config.NewViper()
 
-	viperConfig := config.NewViper()
-	app := config.NewFiber(viperConfig)
-	port := viperConfig.GetString("server.port")
-	db := config.NewGorm(viperConfig)
+	// Init DB (GORM)
+	db := config.NewGorm(v)
 
-	// Auto-migrate the Book entity
-	err := db.AutoMigrate(&entities.Book{})
-	if err != nil {
-		log.Fatal("Failed to migrate database:", err)
+	// Migrate tabel User
+	if err := db.AutoMigrate(&entities.User{}); err != nil {
+		log.Fatal("failed to migrate:", err)
 	}
 
-	// Initialize book service with GORM
-	bookRepo := book.NewRepo(db)
-	bookService := book.NewService(bookRepo)
+	// Init Auth Service & Repo
+	authRepo := auth.NewGormRepository(db)
+	authService := auth.NewService(authRepo)
 
-	app.Use(cors.New())
-	app.Use(swagger.New(swagger.Config{
-		BasePath: "/",
-		FilePath: "./docs/swagger.json",
-		Path:     "swagger",
-		Title:    "Swagger API Docs",
-		CacheAge: 86400,
-	}))
+	// Init JWT Manager (24 jam expired)
+	jwtManager := auth.NewJWTManager(v.GetString("jwt.secret"), 24*time.Hour)
 
-	app.Get("/", func(ctx *fiber.Ctx) error {
-		return ctx.Send([]byte("Hello World"))
-	})
+	// Init Fiber
+	app := config.NewFiber(v)
 
-	api := app.Group("/api/v1")
-	routes.BookRouter(api, bookService)
+	// Register routes
+	api := app.Group("/api")
+	routes.AuthRouter(api, authService, jwtManager)
 
+	// Run server
+	port := v.GetString("server.port")
+	if port == "" {
+		port = "3000"
+	}
 	log.Fatal(app.Listen(":" + port))
 }
