@@ -6,7 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// Response kalau register/login sukses
+// Response kalau register/login success
 func UserSuccessResponse(user *entities.User) *fiber.Map {
 	return &fiber.Map{
 		"status": true,

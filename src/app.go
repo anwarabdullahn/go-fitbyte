@@ -22,8 +22,9 @@ func main() {
 		log.Fatal("failed to migrate:", err)
 	}
 
-	// Init Auth Service
-	authService := auth.NewService(db)
+	// Init Auth Service & Repo
+	authRepo := auth.NewGormRepository(db)
+	authService := auth.NewService(authRepo)
 
 	// Init JWT Manager (24 jam expired)
 	jwtManager := auth.NewJWTManager(v.GetString("jwt.secret"), 24*time.Hour)

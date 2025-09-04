@@ -1,11 +1,10 @@
 package auth
 
 import (
+	"go-fitbyte/src/pkg/entities"
+
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
-
-	"go-fitbyte/src/pkg/entities"
 )
 
 type Service interface {
@@ -14,38 +13,31 @@ type Service interface {
 }
 
 type service struct {
-	DB *gorm.DB
+	repo Repository
 }
 
-func NewService(db *gorm.DB) Service {
-	return &service{DB: db}
+func NewService(repo Repository) Service {
+	return &service{repo: repo}
 }
 
 func (s *service) Register(user *entities.User) (*entities.User, error) {
-	hashed, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return nil, err
-	}
-
+	hashed, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	user.ID = uuid.New()
 	user.Password = string(hashed)
 
-	if err := s.DB.Create(user).Error; err != nil {
+	if err := s.repo.Create(user); err != nil {
 		return nil, err
 	}
 	return user, nil
 }
 
 func (s *service) Login(req *entities.User) (*entities.User, error) {
-	var user entities.User
-
-	if err := s.DB.Where("email = ?", req.Email).First(&user).Error; err != nil {
+	user, err := s.repo.FindByEmail(req.Email)
+	if err != nil {
 		return nil, err
 	}
-
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
+	if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)) != nil {
 		return nil, err
 	}
-
-	return &user, nil
+	return user, nil
 }
