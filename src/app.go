@@ -21,7 +21,7 @@ func main() {
 	db := config.NewGorm(viperConfig)
 
 	// Auto-migrate the Book entity
-	err := db.AutoMigrate(&entities.Book{})
+	err := db.AutoMigrate(&entities.Book{}, &entities.User{})
 	if err != nil {
 		log.Fatal("Failed to migrate database:", err)
 	}
