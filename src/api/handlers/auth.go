@@ -30,7 +30,7 @@ func Register(service auth.Service) fiber.Handler {
 }
 
 // Login Handler
-func Login(service auth.Service) fiber.Handler {
+func Login(service auth.Service, jwtManager *auth.JWTManager) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var req entities.User
 		if err := c.BodyParser(&req); err != nil {
@@ -44,6 +44,16 @@ func Login(service auth.Service) fiber.Handler {
 				JSON(presenter.ErrorResponse("invalid email or password"))
 		}
 
-		return c.JSON(presenter.UserSuccessResponse(user))
+		// generate token
+		token, err := jwtManager.Generate(user.ID.String())
+		if err != nil {
+			return c.Status(http.StatusInternalServerError).
+				JSON(presenter.ErrorResponse("failed to generate token"))
+		}
+
+		return c.JSON(fiber.Map{
+			"user":  presenter.UserSuccessResponse(user),
+			"token": token,
+		})
 	}
 }

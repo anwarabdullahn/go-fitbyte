@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"time"
 
 	"go-fitbyte/src/api/routes"
 	"go-fitbyte/src/config"
@@ -24,20 +25,20 @@ func main() {
 	// Init Auth Service
 	authService := auth.NewService(db)
 
+	// Init JWT Manager (24 jam expired)
+	jwtManager := auth.NewJWTManager(v.GetString("jwt.secret"), 24*time.Hour)
+
 	// Init Fiber
 	app := config.NewFiber(v)
 
 	// Register routes
 	api := app.Group("/api")
-	routes.AuthRouter(api, authService)
+	routes.AuthRouter(api, authService, jwtManager)
 
 	// Run server
 	port := v.GetString("server.port")
 	if port == "" {
 		port = "3000"
-	}
-	if err := app.Listen(":" + port); err != nil {
-		log.Fatal(err)
 	}
 	log.Fatal(app.Listen(":" + port))
 }
