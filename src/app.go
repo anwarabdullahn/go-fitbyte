@@ -8,6 +8,7 @@ import (
 	"go-fitbyte/src/pkg/user"
 	"log"
 
+	"github.com/gofiber/contrib/swagger"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
@@ -33,6 +34,13 @@ func main() {
 	profileService := user.NewService(profileRepo)
 
 	app.Use(cors.New())
+	app.Use(swagger.New(swagger.Config{
+		BasePath: "/",
+		FilePath: "./docs/swagger.json",
+		Path:     "swagger",
+		Title:    "Swagger API Docs",
+		CacheAge: 86400,
+	}))
 
 	app.Get("/", func(ctx *fiber.Ctx) error {
 		return ctx.Send([]byte("Hello World"))
@@ -42,8 +50,5 @@ func main() {
 	routes.BookRouter(api, bookService)
 	routes.ProfileRouter(api, profileService)
 
-	if port == "" {
-		port = "8080"
-	}
 	log.Fatal(app.Listen(":" + port))
 }

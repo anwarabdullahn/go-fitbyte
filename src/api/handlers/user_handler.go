@@ -4,14 +4,24 @@ import (
 	"net/http"
 
 	"go-fitbyte/src/api/presenter"
-	// "go-fitbyte/src/pkg/entities"
 	"go-fitbyte/src/pkg/entities"
 	"go-fitbyte/src/pkg/user"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
 
-// GetBooks is handler/controller which lists all Books from the BookShop
+var validate = validator.New()
+
+// GetCurrentUser is handler/controller which get current user
+// @Summary      Get current user
+// @Description  Retrieve a profile
+// @Tags         Profile
+// @Accept       json
+// @Produce      json
+// @Success      200   {object}  map[string]interface{}
+// @Failure      500   {object}  map[string]interface{}
+// @Router       /api/v1/user [get]
 func GetCurrentUser(service user.Service) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		data, err := service.FetchProfile()
@@ -23,15 +33,33 @@ func GetCurrentUser(service user.Service) fiber.Handler {
 	}
 }
 
+// UpdateProfile is handler/controller which updates data of current user
+// @Summary      Update a profile
+// @Description  Update an existing profile (partial updates allowed)
+// @Tags         Profile
+// @Accept       json
+// @Produce      json
+// @Param        user  body      entities.UpdateProfile   true  "User update request (partial fields allowed)"
+// @Success      200   {object}  map[string]interface{}
+// @Failure      400   {object}  map[string]interface{}
+// @Failure      500   {object}  map[string]interface{}
+// @Router       /api/v1/user [put]
 func UpdateProfile(service user.Service) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		var requestBody entities.User
+		var requestBody entities.UpdateProfile
 		userID := 1
 
 		err := c.BodyParser(&requestBody)
 		if err != nil {
 			c.Status(http.StatusBadRequest)
 			return c.JSON(presenter.UserErrorResponse(err))
+		}
+
+		// validasi
+		if err := validate.Struct(requestBody); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": err.Error(),
+			})
 		}
 
 		// 3. Cari user di DB
@@ -41,6 +69,7 @@ func UpdateProfile(service user.Service) fiber.Handler {
 				"error": "User not found",
 			})
 		}
+		user.ID = uint(userID)
 		user.Preference = entities.PreferenceType(requestBody.Preference)
 		user.WeightUnit = entities.WeightUnitType(requestBody.WeightUnit)
 		user.HeightUnit = entities.HeightUnitType(requestBody.HeightUnit)
