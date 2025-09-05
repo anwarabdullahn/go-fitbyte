@@ -6,8 +6,6 @@ import (
 
 	"go-fitbyte/src/api/presenter"
 	"go-fitbyte/src/pkg/entities"
-
-	"github.com/google/uuid"
 )
 
 type Filter struct {
@@ -22,11 +20,11 @@ type Filter struct {
 
 // Service is an interface from which our api module can access our repository of all our models
 type Service interface {
-	CreateActivity(userID uuid.UUID, req *entities.CreateActivityRequest) (*entities.Activity, error)
-	FetchActivities(userID uuid.UUID, filter Filter) (*[]presenter.Activity, error)
-	FetchActivityByID(activityID string, userID uuid.UUID) (*entities.Activity, error)
-	UpdateActivity(activityID string, userID uuid.UUID, req *entities.CreateActivityRequest) (*entities.Activity, error)
-	RemoveActivity(activityID string, userID uuid.UUID) error
+	CreateActivity(userID uint, req *entities.CreateActivityRequest) (*entities.Activity, error)
+	FetchActivities(userID uint, filter Filter) (*[]presenter.Activity, error)
+	FetchActivityByID(activityID uint, userID uint) (*entities.Activity, error)
+	UpdateActivity(activityID uint, userID uint, req *entities.CreateActivityRequest) (*entities.Activity, error)
+	RemoveActivity(activityID uint, userID uint) error
 }
 
 type service struct {
@@ -41,7 +39,7 @@ func NewService(r Repository) Service {
 }
 
 // CreateActivity is a service layer that helps insert activity
-func (s *service) CreateActivity(userID uuid.UUID, req *entities.CreateActivityRequest) (*entities.Activity, error) {
+func (s *service) CreateActivity(userID uint, req *entities.CreateActivityRequest) (*entities.Activity, error) {
 	// Validate activity type
 	if !isValidActivityType(req.ActivityType) {
 		return nil, errors.New("invalid activity type")
@@ -62,7 +60,6 @@ func (s *service) CreateActivity(userID uuid.UUID, req *entities.CreateActivityR
 
 	// Create activity entity
 	activity := &entities.Activity{
-		ID:                uuid.New(),
 		ActivityType:      req.ActivityType,
 		DoneAt:            doneAt,
 		DurationInMinutes: req.DurationInMinutes,
@@ -74,17 +71,17 @@ func (s *service) CreateActivity(userID uuid.UUID, req *entities.CreateActivityR
 }
 
 // FetchActivities is a service layer that helps fetch all activities for a user
-func (s *service) FetchActivities(userID uuid.UUID, filter Filter) (*[]presenter.Activity, error) {
+func (s *service) FetchActivities(userID uint, filter Filter) (*[]presenter.Activity, error) {
 	return s.repository.ReadActivities(userID, filter)
 }
 
 // FetchActivityByID is a service layer that helps fetch a specific activity by ID
-func (s *service) FetchActivityByID(activityID string, userID uuid.UUID) (*entities.Activity, error) {
+func (s *service) FetchActivityByID(activityID uint, userID uint) (*entities.Activity, error) {
 	return s.repository.ReadActivityByID(activityID, userID)
 }
 
 // UpdateActivity is a service layer that helps update activities
-func (s *service) UpdateActivity(activityID string, userID uuid.UUID, req *entities.CreateActivityRequest) (*entities.Activity, error) {
+func (s *service) UpdateActivity(activityID uint, userID uint, req *entities.CreateActivityRequest) (*entities.Activity, error) {
 	// Validate activity type
 	if !isValidActivityType(req.ActivityType) {
 		return nil, errors.New("invalid activity type")
@@ -119,7 +116,7 @@ func (s *service) UpdateActivity(activityID string, userID uuid.UUID, req *entit
 }
 
 // RemoveActivity is a service layer that helps remove activities
-func (s *service) RemoveActivity(activityID string, userID uuid.UUID) error {
+func (s *service) RemoveActivity(activityID uint, userID uint) error {
 	return s.repository.DeleteActivity(activityID, userID)
 }
 

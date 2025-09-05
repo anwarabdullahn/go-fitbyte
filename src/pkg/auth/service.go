@@ -3,7 +3,6 @@ package auth
 import (
 	"go-fitbyte/src/pkg/entities"
 
-	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -22,7 +21,6 @@ func NewService(repo Repository) Service {
 
 func (s *service) Register(user *entities.User) (*entities.User, error) {
 	hashed, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	user.ID = uuid.New()
 	user.Password = string(hashed)
 
 	if err := s.repo.Create(user); err != nil {

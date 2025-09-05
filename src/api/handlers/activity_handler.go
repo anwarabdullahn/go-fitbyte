@@ -11,7 +11,6 @@ import (
 	"go-fitbyte/src/pkg/validation"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 	"github.com/pkg/errors"
 )
 
@@ -19,23 +18,23 @@ import (
 var validate = validation.NewValidator()
 
 // extractUserID extracts and converts user ID from JWT token
-func extractUserID(c *fiber.Ctx) (uuid.UUID, error) {
+func extractUserID(c *fiber.Ctx) (uint, error) {
 	userIDInterface := c.Locals("user_id")
 	if userIDInterface == nil {
-		return uuid.Nil, errors.New("user not authenticated")
+		return 0, errors.New("user not authenticated")
 	}
 
 	userIDStr, ok := userIDInterface.(string)
 	if !ok {
-		return uuid.Nil, errors.New("invalid user ID format")
+		return 0, errors.New("invalid user ID format")
 	}
 
-	parsed, err := uuid.Parse(userIDStr)
+	parsed, err := strconv.ParseUint(userIDStr, 10, 32)
 	if err != nil {
-		return uuid.Nil, errors.New("invalid user ID")
+		return 0, errors.New("invalid user ID")
 	}
 
-	return parsed, nil
+	return uint(parsed), nil
 }
 
 // CreateActivity is handler/controller which creates activities
@@ -192,7 +191,7 @@ func GetActivities(service activity.Service) fiber.Handler {
 // @Tags         Activities
 // @Accept       json
 // @Produce      json
-// @Param        id   path      string  true  "Activity ID"
+// @Param        id   path      uint  true  "Activity ID"
 // @Success      200   {object}  map[string]interface{}
 // @Failure      401   {object}  map[string]interface{}
 // @Failure      404   {object}  map[string]interface{}
@@ -201,10 +200,17 @@ func GetActivities(service activity.Service) fiber.Handler {
 // @Security     BearerAuth
 func GetActivityByID(service activity.Service) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		activityID := c.Params("id")
-		if activityID == "" {
+		activityIDStr := c.Params("id")
+		if activityIDStr == "" {
 			c.Status(http.StatusBadRequest)
 			return c.JSON(presenter.ActivityErrorResponse(errors.New("activity ID is required")))
+		}
+
+		// Parse activity ID to uint
+		activityID, err := strconv.ParseUint(activityIDStr, 10, 32)
+		if err != nil {
+			c.Status(http.StatusBadRequest)
+			return c.JSON(presenter.ActivityErrorResponse(errors.New("invalid activity ID format")))
 		}
 
 		// Get user ID from JWT token
@@ -214,7 +220,7 @@ func GetActivityByID(service activity.Service) fiber.Handler {
 			return c.JSON(presenter.ActivityErrorResponse(err))
 		}
 
-		result, err := service.FetchActivityByID(activityID, userID)
+		result, err := service.FetchActivityByID(uint(activityID), userID)
 		if err != nil {
 			c.Status(http.StatusNotFound)
 			return c.JSON(presenter.ActivityErrorResponse(err))
@@ -229,7 +235,7 @@ func GetActivityByID(service activity.Service) fiber.Handler {
 // @Tags         Activities
 // @Accept       json
 // @Produce      json
-// @Param        id   path      string  true  "Activity ID"
+// @Param        id   path      uint  true  "Activity ID"
 // @Param        activity  body      entities.CreateActivityRequest  true  "Activity update object"
 // @Success      200   {object}  map[string]interface{}
 // @Failure      400   {object}  map[string]interface{}
@@ -240,14 +246,21 @@ func GetActivityByID(service activity.Service) fiber.Handler {
 // @Security     BearerAuth
 func UpdateActivity(service activity.Service) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		activityID := c.Params("id")
-		if activityID == "" {
+		activityIDStr := c.Params("id")
+		if activityIDStr == "" {
 			c.Status(http.StatusBadRequest)
 			return c.JSON(presenter.ActivityErrorResponse(errors.New("activity ID is required")))
 		}
 
+		// Parse activity ID to uint
+		activityID, err := strconv.ParseUint(activityIDStr, 10, 32)
+		if err != nil {
+			c.Status(http.StatusBadRequest)
+			return c.JSON(presenter.ActivityErrorResponse(errors.New("invalid activity ID format")))
+		}
+
 		var requestBody entities.CreateActivityRequest
-		err := c.BodyParser(&requestBody)
+		err = c.BodyParser(&requestBody)
 		if err != nil {
 			c.Status(http.StatusBadRequest)
 			return c.JSON(presenter.ActivityErrorResponse(err))
@@ -271,7 +284,7 @@ func UpdateActivity(service activity.Service) fiber.Handler {
 			return c.JSON(presenter.ActivityErrorResponse(err))
 		}
 
-		result, err := service.UpdateActivity(activityID, userID, &requestBody)
+		result, err := service.UpdateActivity(uint(activityID), userID, &requestBody)
 		if err != nil {
 			c.Status(http.StatusInternalServerError)
 			return c.JSON(presenter.ActivityErrorResponse(err))
@@ -286,7 +299,7 @@ func UpdateActivity(service activity.Service) fiber.Handler {
 // @Tags         Activities
 // @Accept       json
 // @Produce      json
-// @Param        id   path      string  true  "Activity ID"
+// @Param        id   path      uint  true  "Activity ID"
 // @Success      200   {object}  map[string]interface{}
 // @Failure      400   {object}  map[string]interface{}
 // @Failure      401   {object}  map[string]interface{}
@@ -296,10 +309,17 @@ func UpdateActivity(service activity.Service) fiber.Handler {
 // @Security     BearerAuth
 func DeleteActivity(service activity.Service) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		activityID := c.Params("id")
-		if activityID == "" {
+		activityIDStr := c.Params("id")
+		if activityIDStr == "" {
 			c.Status(http.StatusBadRequest)
 			return c.JSON(presenter.ActivityErrorResponse(errors.New("activity ID is required")))
+		}
+
+		// Parse activity ID to uint
+		activityID, err := strconv.ParseUint(activityIDStr, 10, 32)
+		if err != nil {
+			c.Status(http.StatusBadRequest)
+			return c.JSON(presenter.ActivityErrorResponse(errors.New("invalid activity ID format")))
 		}
 
 		// Get user ID from JWT token
@@ -309,7 +329,7 @@ func DeleteActivity(service activity.Service) fiber.Handler {
 			return c.JSON(presenter.ActivityErrorResponse(err))
 		}
 
-		err = service.RemoveActivity(activityID, userID)
+		err = service.RemoveActivity(uint(activityID), userID)
 		if err != nil {
 			c.Status(http.StatusInternalServerError)
 			return c.JSON(presenter.ActivityErrorResponse(err))

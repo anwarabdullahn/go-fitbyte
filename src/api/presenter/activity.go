@@ -9,7 +9,7 @@ import (
 
 // Activity is the presenter object which will be passed in the response by Handler
 type Activity struct {
-	ID                string    `json:"activityId"`
+	ID                uint      `json:"activityId"`
 	ActivityType      string    `json:"activityType"`
 	DoneAt            time.Time `json:"doneAt"`
 	DurationInMinutes int       `json:"durationInMinutes"`
@@ -21,7 +21,7 @@ type Activity struct {
 // ActivitySuccessResponse is the singular SuccessResponse that will be passed in the response by Handler
 func ActivitySuccessResponse(data *entities.Activity) *Activity {
 	activity := Activity{
-		ID:                data.ID.String(),
+		ID:                data.ID,
 		ActivityType:      data.ActivityType,
 		DoneAt:            data.DoneAt,
 		DurationInMinutes: data.DurationInMinutes,

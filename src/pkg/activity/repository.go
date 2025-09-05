@@ -4,17 +4,16 @@ import (
 	"go-fitbyte/src/api/presenter"
 	"go-fitbyte/src/pkg/entities"
 
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 // Repository interface allows us to access the CRUD Operations for activities
 type Repository interface {
 	CreateActivity(activity *entities.Activity) (*entities.Activity, error)
-	ReadActivities(userID uuid.UUID, filter Filter) (*[]presenter.Activity, error)
-	ReadActivityByID(activityID string, userID uuid.UUID) (*entities.Activity, error)
+	ReadActivities(userID uint, filter Filter) (*[]presenter.Activity, error)
+	ReadActivityByID(activityID uint, userID uint) (*entities.Activity, error)
 	UpdateActivity(activity *entities.Activity) (*entities.Activity, error)
-	DeleteActivity(activityID string, userID uuid.UUID) error
+	DeleteActivity(activityID uint, userID uint) error
 }
 
 type repository struct {
@@ -37,7 +36,7 @@ func (r *repository) CreateActivity(activity *entities.Activity) (*entities.Acti
 }
 
 // ReadActivities is a GORM repository that helps to fetch activities for a user
-func (r *repository) ReadActivities(userID uuid.UUID, filter Filter) (*[]presenter.Activity, error) {
+func (r *repository) ReadActivities(userID uint, filter Filter) (*[]presenter.Activity, error) {
 	var entityActivities []entities.Activity
 
 	q := r.DB.Model(&entities.Activity{}).Where("user_id = ?", userID)
@@ -68,7 +67,7 @@ func (r *repository) ReadActivities(userID uuid.UUID, filter Filter) (*[]present
 	var activities []presenter.Activity
 	for _, activity := range entityActivities {
 		activities = append(activities, presenter.Activity{
-			ID:                activity.ID.String(),
+			ID:                activity.ID,
 			ActivityType:      activity.ActivityType,
 			DoneAt:            activity.DoneAt,
 			DurationInMinutes: activity.DurationInMinutes,
@@ -82,7 +81,7 @@ func (r *repository) ReadActivities(userID uuid.UUID, filter Filter) (*[]present
 }
 
 // ReadActivityByID is a GORM repository that helps to fetch a specific activity by ID
-func (r *repository) ReadActivityByID(activityID string, userID uuid.UUID) (*entities.Activity, error) {
+func (r *repository) ReadActivityByID(activityID uint, userID uint) (*entities.Activity, error) {
 	var activity entities.Activity
 	if err := r.DB.Where("id = ? AND user_id = ?", activityID, userID).First(&activity).Error; err != nil {
 		return nil, err
@@ -103,7 +102,7 @@ func (r *repository) UpdateActivity(activity *entities.Activity) (*entities.Acti
 }
 
 // DeleteActivity is a GORM repository that helps to delete activities
-func (r *repository) DeleteActivity(activityID string, userID uuid.UUID) error {
+func (r *repository) DeleteActivity(activityID uint, userID uint) error {
 	if err := r.DB.Where("id = ? AND user_id = ?", activityID, userID).Delete(&entities.Activity{}).Error; err != nil {
 		return err
 	}

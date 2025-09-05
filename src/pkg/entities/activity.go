@@ -3,18 +3,17 @@ package entities
 import (
 	"time"
 
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 // Activity represents a fitness activity performed by a user
 type Activity struct {
-	ID                uuid.UUID      `json:"activityId" gorm:"primaryKey;type:uuid"`
+	ID                uint           `json:"activityId" gorm:"primaryKey;autoIncrement"`
 	ActivityType      string         `json:"activityType" gorm:"type:varchar(50);not null"`
 	DoneAt            time.Time      `json:"doneAt" gorm:"not null"`
 	DurationInMinutes int            `json:"durationInMinutes" gorm:"not null;min:1"`
 	CaloriesBurned    int            `json:"caloriesBurned" gorm:"not null"`
-	UserID            uuid.UUID      `json:"userId" gorm:"type:uuid;not null;index"`
+	UserID            uint           `json:"userId" gorm:"not null;index"`
 	CreatedAt         time.Time      `json:"createdAt" gorm:"autoCreateTime"`
 	UpdatedAt         time.Time      `json:"updatedAt" gorm:"autoUpdateTime"`
 	DeletedAt         gorm.DeletedAt `json:"-" gorm:"index"`
