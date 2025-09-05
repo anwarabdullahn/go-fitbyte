@@ -32,8 +32,10 @@ func main() {
 	// Init DB (GORM)
 	db := config.NewGorm(v)
 
+
 	// Auto-migrate the entities
 	err := db.AutoMigrate(&entities.User{}, &entities.Book{}, &entities.UserFile{}, &entities.Activity{})
+
 	if err != nil {
 		log.Fatal("Failed to migrate database:", err)
 	}
