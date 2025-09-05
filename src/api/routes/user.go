@@ -14,9 +14,3 @@ func ProfileRouter(app fiber.Router, service user.Service, jm *auth.JWTManager) 
 	profile.Get("", handlers.GetMe(service))
 	profile.Put("", handlers.UpdateProfile(service))
 }
-
-// , jm *auth.JWTManager
-// func ProfileRouter(app fiber.Router, service user.Service) {
-// 	app.Get("/user", handlers.GetCurrentUser(service))
-// 	app.Put("", handlers.UpdateProfile(service))
-// }

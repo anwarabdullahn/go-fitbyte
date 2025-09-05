@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"time"
 
@@ -11,6 +10,7 @@ import (
 	"go-fitbyte/src/pkg/book"
 	"go-fitbyte/src/pkg/entities"
 	"go-fitbyte/src/pkg/user"
+	"go-fitbyte/src/pkg/userfile"
 
 	"github.com/gofiber/contrib/swagger"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -32,7 +32,7 @@ func main() {
 	db := config.NewGorm(v)
 
 	// Auto-migrate the Book entity
-	err := db.AutoMigrate(&entities.Book{}, &entities.User{})
+	err := db.AutoMigrate(&entities.Book{}, &entities.User{}, &entities.UserFile{})
 	if err != nil {
 		log.Fatal("Failed to migrate database:", err)
 	}
@@ -47,6 +47,9 @@ func main() {
 	profileRepo := user.NewRepo(db)
 	profileService := user.NewService(profileRepo)
 
+	uploadFileRepo := userfile.NewRepo(db)
+	uploadFileService := userfile.NewService(uploadFileRepo)
+
 	app := config.NewFiber(v)
 
 	app.Use(cors.New())
@@ -60,13 +63,7 @@ func main() {
 	routes.BookRouter(api, bookService)
 	routes.AuthRouter(api, authService, jwtManager)
 	routes.ProfileRouter(api, profileService, jwtManager)
-
-	routesList := app.GetRoutes()
-	log.Printf("registered routes: %d", len(routesList))
-	for _, r := range routesList {
-		log.Printf("%-6s -> %s", r.Method, r.Path)
-		fmt.Printf("%-6s -> %s\n", r.Method, r.Path)
-	}
+	routes.UserfileRouter(api, profileService, uploadFileService, jwtManager)
 
 	app.Use(swagger.New(swagger.Config{
 		BasePath: "/",
@@ -75,13 +72,6 @@ func main() {
 		Title:    "Swagger API Docs",
 		CacheAge: 86400,
 	}))
-
-	fmt.Print(app.GetRoutes())
-
-	for _, r := range app.GetRoutes() {
-		log.Printf("%s -> %s", r.Method, r.Path)
-		fmt.Printf("%s -> %s", r.Method, r.Path)
-	}
 
 	// Run server
 	port := v.GetString("server.port")

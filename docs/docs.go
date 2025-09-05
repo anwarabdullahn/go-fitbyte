@@ -285,6 +285,58 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/upload-file": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Upload user file",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Upload File"
+                ],
+                "summary": "Upload user file",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "User File",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/user": {
             "get": {
                 "security": [
@@ -321,6 +373,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Update an existing profile (partial updates allowed)",
                 "consumes": [
                     "application/json"
@@ -487,7 +544,6 @@ const docTemplate = `{
                 "name": {
                     "type": "string",
                     "maxLength": 60,
-                    "minLength": 2,
                     "example": ""
                 },
                 "preference": {

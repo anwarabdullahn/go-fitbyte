@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
 	"go-fitbyte/src/api/presenter"
 	"go-fitbyte/src/pkg/entities"
@@ -25,20 +26,19 @@ var validate = validator.New()
 // @Router       /api/v1/user [get]
 func GetMe(service user.Service) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		// userIDStr, ok := c.Locals("user_id").(string)
-		// if !ok {
-		// 	return c.Status(fiber.StatusUnauthorized).
-		// 		JSON(presenter.ErrorResponse("invalid token user_id"))
-		// }
+		userIDStr, ok := c.Locals("user_id").(string)
+		if !ok {
+			return c.Status(fiber.StatusUnauthorized).
+				JSON(presenter.ErrorResponse("invalid token user_id"))
+		}
 
-		// // convert string -> uint
-		// uid64, err := strconv.ParseUint(userIDStr, 10, 32)
+		uid64, err := strconv.ParseUint(userIDStr, 10, 32)
 
-		// if err != nil {
-		// 	return c.Status(fiber.StatusUnauthorized).
-		// 		JSON(presenter.ErrorResponse("invalid user_id format"))
-		// }
-		data, err := service.FetchUserById(uint(1))
+		if err != nil {
+			return c.Status(fiber.StatusUnauthorized).
+				JSON(presenter.ErrorResponse("invalid user_id format"))
+		}
+		data, err := service.FetchUserById(uint(uid64))
 		if err != nil {
 			c.Status(http.StatusInternalServerError)
 			return c.JSON(presenter.UserErrorResponse(err))
@@ -53,6 +53,7 @@ func GetMe(service user.Service) fiber.Handler {
 // @Tags         Profile
 // @Accept       json
 // @Produce      json
+// @Security BearerAuth
 // @Param        user  body      entities.UpdateProfile   true  "User update request (partial fields allowed)"
 // @Success      200   {object}  map[string]interface{}
 // @Failure      400   {object}  map[string]interface{}
@@ -61,29 +62,40 @@ func GetMe(service user.Service) fiber.Handler {
 func UpdateProfile(service user.Service) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var requestBody entities.UpdateProfile
-		userID := 1
 
-		err := c.BodyParser(&requestBody)
+		// 1. Ambil user_id dari token
+		userIDStr, ok := c.Locals("user_id").(string)
+		if !ok {
+			return c.Status(http.StatusUnauthorized).
+				JSON(presenter.ErrorResponse("invalid token user_id"))
+		}
+
+		uid64, err := strconv.ParseUint(userIDStr, 10, 32)
 		if err != nil {
-			c.Status(http.StatusBadRequest)
-			return c.JSON(presenter.UserErrorResponse(err))
+			return c.Status(http.StatusUnauthorized).
+				JSON(presenter.ErrorResponse("invalid user_id format"))
 		}
 
-		// validasi
-		if err := validate.Struct(requestBody); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": err.Error(),
-			})
+		// 2. Parse request body
+		if err = c.BodyParser(&requestBody); err != nil {
+			return c.Status(http.StatusBadRequest).
+				JSON(presenter.ErrorResponse("invalid request body: " + err.Error()))
 		}
 
-		// 3. Cari user di DB
-		user, err := service.FetchUserById(uint(userID))
+		// 3. Validasi request
+		if err = validate.Struct(requestBody); err != nil {
+			return c.Status(http.StatusBadRequest).
+				JSON(presenter.ErrorResponse(err.Error()))
+		}
+
+		// 4. Ambil user dari DB
+		user, err := service.FetchUserById(uint(uid64))
 		if err != nil {
-			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-				"error": "User not found",
-			})
+			return c.Status(http.StatusNotFound).
+				JSON(presenter.ErrorResponse("user not found"))
 		}
-		user.ID = uint(userID)
+
+		// 5. Update field user
 		user.Preference = entities.PreferenceType(requestBody.Preference)
 		user.WeightUnit = entities.WeightUnitType(requestBody.WeightUnit)
 		user.HeightUnit = entities.HeightUnitType(requestBody.HeightUnit)
@@ -97,11 +109,13 @@ func UpdateProfile(service user.Service) fiber.Handler {
 			user.ImageURI = requestBody.ImageURI
 		}
 
-		result, err := service.UpdateProfile(user)
+		// 6. Simpan update ke DB
+		updatedUser, err := service.UpdateProfile(user)
 		if err != nil {
-			c.Status(http.StatusInternalServerError)
-			return c.JSON(presenter.UserErrorResponse(err))
+			return c.Status(http.StatusInternalServerError).
+				JSON(presenter.ErrorResponse("failed to update profile: " + err.Error()))
 		}
-		return c.JSON(presenter.UserSuccessResponse(result))
+
+		return c.JSON(presenter.ProfileSuccessResponse(updatedUser))
 	}
 }

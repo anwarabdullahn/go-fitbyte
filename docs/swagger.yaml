@@ -74,7 +74,6 @@ definitions:
       name:
         example: ""
         maxLength: 60
-        minLength: 2
         type: string
       preference:
         allOf:
@@ -296,6 +295,40 @@ paths:
       summary: Create new user
       tags:
       - Autentifikasi
+  /api/v1/upload-file:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload user file
+      parameters:
+      - description: User File
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Upload user file
+      tags:
+      - Upload File
   /api/v1/user:
     get:
       consumes:
@@ -348,6 +381,8 @@ paths:
           schema:
             additionalProperties: true
             type: object
+      security:
+      - BearerAuth: []
       summary: Update a profile
       tags:
       - Profile

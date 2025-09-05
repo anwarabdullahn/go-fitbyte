@@ -8,7 +8,6 @@ import (
 
 // Repository interface allows us to access the CRUD Operations here.
 type Repository interface {
-	ReadProfile() (*entities.User, error)
 	UpdateProfile(user *entities.User) (*entities.User, error)
 	FetchUserById(ID uint) (*entities.User, error)
 }
@@ -21,14 +20,6 @@ func NewRepo(db *gorm.DB) Repository {
 	return &repository{
 		DB: db,
 	}
-}
-
-func (r *repository) ReadProfile() (*entities.User, error) {
-	var users entities.User
-	if err := r.DB.Find(&users).Error; err != nil {
-		return nil, err
-	}
-	return &users, nil
 }
 
 func (r *repository) UpdateProfile(user *entities.User) (*entities.User, error) {

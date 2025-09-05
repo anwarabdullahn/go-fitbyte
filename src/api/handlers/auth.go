@@ -30,12 +30,12 @@ func Register(service auth.Service) fiber.Handler {
 				JSON(presenter.ErrorResponse("invalid request body"))
 		}
 
-		postData := entities.User{
+		postData := &entities.User{
 			Email:    req.Email,
-			Password: req.Password,
+			Password: string(req.Password),
 		}
 
-		user, err := service.Register(&postData)
+		user, err := service.Register(postData)
 		if err != nil {
 			return c.Status(http.StatusInternalServerError).
 				JSON(presenter.ErrorResponse(err.Error()))
@@ -64,12 +64,12 @@ func Login(service auth.Service, jwtManager *auth.JWTManager) fiber.Handler {
 				JSON(presenter.ErrorResponse("invalid request body"))
 		}
 
-		postData := entities.User{
+		postData := &entities.User{
 			Email:    req.Email,
 			Password: req.Password,
 		}
 
-		user, err := service.Login(&postData)
+		user, err := service.Login(postData)
 		if err != nil {
 			return c.Status(http.StatusUnauthorized).
 				JSON(presenter.ErrorResponse("invalid email or password"))

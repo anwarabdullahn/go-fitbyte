@@ -6,7 +6,6 @@ import (
 
 // Service is an interface from which our api module can access our repository of all our models
 type Service interface {
-	FetchProfile() (*entities.User, error)
 	UpdateProfile(user *entities.User) (*entities.User, error)
 	FetchUserById(ID uint) (*entities.User, error)
 }
@@ -20,10 +19,6 @@ func NewService(r Repository) Service {
 	return &service{
 		repository: r,
 	}
-}
-
-func (s *service) FetchProfile() (*entities.User, error) {
-	return s.repository.ReadProfile()
 }
 
 // UpdateBook is a service layer that helps update books in BookShop
