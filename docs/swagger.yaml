@@ -1,4 +1,16 @@
 definitions:
+  entities.AuthRequest:
+    properties:
+      email:
+        type: string
+      password:
+        maxLength: 32
+        minLength: 8
+        type: string
+    required:
+    - email
+    - password
+    type: object
   entities.Book:
     properties:
       author:
@@ -17,6 +29,22 @@ definitions:
       id:
         type: integer
     type: object
+  entities.HeightUnitType:
+    enum:
+    - CM
+    - INCH
+    type: string
+    x-enum-varnames:
+    - HeightCM
+    - HeightINCH
+  entities.PreferenceType:
+    enum:
+    - CARDIO
+    - WEIGHT
+    type: string
+    x-enum-varnames:
+    - PreferenceCardio
+    - PreferenceWeight
   entities.UpdateBookRequest:
     properties:
       author:
@@ -28,8 +56,61 @@ definitions:
     required:
     - id
     type: object
+  entities.UpdateProfile:
+    properties:
+      height:
+        maximum: 250
+        minimum: 3
+        type: integer
+      heightUnit:
+        allOf:
+        - $ref: '#/definitions/entities.HeightUnitType'
+        enum:
+        - CM
+        - INCH
+      imageUri:
+        example: ""
+        type: string
+      name:
+        example: ""
+        maxLength: 60
+        type: string
+      preference:
+        allOf:
+        - $ref: '#/definitions/entities.PreferenceType'
+        enum:
+        - CARDIO
+        - WEIGHT
+      weight:
+        maximum: 1000
+        minimum: 10
+        type: integer
+      weightUnit:
+        allOf:
+        - $ref: '#/definitions/entities.WeightUnitType'
+        enum:
+        - KG
+        - LBS
+    required:
+    - height
+    - heightUnit
+    - preference
+    - weight
+    - weightUnit
+    type: object
+  entities.WeightUnitType:
+    enum:
+    - KG
+    - LBS
+    type: string
+    x-enum-varnames:
+    - WeightKG
+    - WeightLBS
 info:
   contact: {}
+  description: This is my API with JWT auth
+  title: My API
+  version: "1.0"
 paths:
   /api/v1/books:
     delete:
@@ -148,4 +229,166 @@ paths:
       summary: Update a book
       tags:
       - Books
+  /api/v1/login:
+    post:
+      consumes:
+      - application/json
+      description: Login
+      parameters:
+      - description: 'User '
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/entities.AuthRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Login
+      tags:
+      - Autentifikasi
+  /api/v1/register:
+    post:
+      consumes:
+      - application/json
+      description: Create new user
+      parameters:
+      - description: 'User '
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/entities.AuthRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create new user
+      tags:
+      - Autentifikasi
+  /api/v1/upload-file:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload user file
+      parameters:
+      - description: User File
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Upload user file
+      tags:
+      - Upload File
+  /api/v1/user:
+    get:
+      consumes:
+      - application/json
+      description: Get user profile from JWT token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get current user
+      tags:
+      - Profile
+    put:
+      consumes:
+      - application/json
+      description: Update an existing profile (partial updates allowed)
+      parameters:
+      - description: User update request (partial fields allowed)
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/entities.UpdateProfile'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update a profile
+      tags:
+      - Profile
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

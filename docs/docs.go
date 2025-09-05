@@ -186,9 +186,264 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/v1/login": {
+            "post": {
+                "description": "Login",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Autentifikasi"
+                ],
+                "summary": "Login",
+                "parameters": [
+                    {
+                        "description": "User ",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entities.AuthRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/register": {
+            "post": {
+                "description": "Create new user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Autentifikasi"
+                ],
+                "summary": "Create new user",
+                "parameters": [
+                    {
+                        "description": "User ",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entities.AuthRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/upload-file": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Upload user file",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Upload File"
+                ],
+                "summary": "Upload user file",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "User File",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/user": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get user profile from JWT token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Get current user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update an existing profile (partial updates allowed)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Update a profile",
+                "parameters": [
+                    {
+                        "description": "User update request (partial fields allowed)",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entities.UpdateProfile"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "entities.AuthRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 8
+                }
+            }
+        },
         "entities.Book": {
             "type": "object",
             "properties": {
@@ -217,6 +472,28 @@ const docTemplate = `{
                 }
             }
         },
+        "entities.HeightUnitType": {
+            "type": "string",
+            "enum": [
+                "CM",
+                "INCH"
+            ],
+            "x-enum-varnames": [
+                "HeightCM",
+                "HeightINCH"
+            ]
+        },
+        "entities.PreferenceType": {
+            "type": "string",
+            "enum": [
+                "CARDIO",
+                "WEIGHT"
+            ],
+            "x-enum-varnames": [
+                "PreferenceCardio",
+                "PreferenceWeight"
+            ]
+        },
         "entities.UpdateBookRequest": {
             "type": "object",
             "required": [
@@ -233,18 +510,100 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "entities.UpdateProfile": {
+            "type": "object",
+            "required": [
+                "height",
+                "heightUnit",
+                "preference",
+                "weight",
+                "weightUnit"
+            ],
+            "properties": {
+                "height": {
+                    "type": "integer",
+                    "maximum": 250,
+                    "minimum": 3
+                },
+                "heightUnit": {
+                    "enum": [
+                        "CM",
+                        "INCH"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/entities.HeightUnitType"
+                        }
+                    ]
+                },
+                "imageUri": {
+                    "type": "string",
+                    "example": ""
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 60,
+                    "example": ""
+                },
+                "preference": {
+                    "enum": [
+                        "CARDIO",
+                        "WEIGHT"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/entities.PreferenceType"
+                        }
+                    ]
+                },
+                "weight": {
+                    "type": "integer",
+                    "maximum": 1000,
+                    "minimum": 10
+                },
+                "weightUnit": {
+                    "enum": [
+                        "KG",
+                        "LBS"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/entities.WeightUnitType"
+                        }
+                    ]
+                }
+            }
+        },
+        "entities.WeightUnitType": {
+            "type": "string",
+            "enum": [
+                "KG",
+                "LBS"
+            ],
+            "x-enum-varnames": [
+                "WeightKG",
+                "WeightLBS"
+            ]
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
+	Version:          "1.0",
 	Host:             "",
 	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "",
-	Description:      "",
+	Title:            "My API",
+	Description:      "This is my API with JWT auth",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",
