@@ -15,59 +15,24 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/v1/books": {
+        "/api/v1/activity": {
             "get": {
-                "description": "Retrieve a list of all books",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Books"
-                ],
-                "summary": "Get all books",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            },
-            "put": {
-                "description": "Update an existing book (partial updates allowed)",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Books"
-                ],
-                "summary": "Update a book",
-                "parameters": [
+                "security": [
                     {
-                        "description": "Book update request (partial fields allowed)",
-                        "name": "book",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/entities.UpdateBookRequest"
-                        }
+                        "BearerAuth": []
                     }
                 ],
+                "description": "Retrieve a list of all activities for the authenticated user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Activities"
+                ],
+                "summary": "Get all activities",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -76,8 +41,8 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -93,7 +58,12 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Add a new book to the collection",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Add a new activity to the collection",
                 "consumes": [
                     "application/json"
                 ],
@@ -101,17 +71,17 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Books"
+                    "Activities"
                 ],
-                "summary": "Create a new book",
+                "summary": "Create a new activity",
                 "parameters": [
                     {
-                        "description": "Book object",
-                        "name": "book",
+                        "description": "Activity object",
+                        "name": "activity",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/entities.Book"
+                            "$ref": "#/definitions/entities.CreateActivityRequest"
                         }
                     }
                 ],
@@ -125,6 +95,145 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/activity/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve a specific activity by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Activities"
+                ],
+                "summary": "Get activity by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Activity ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update an existing activity",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Activities"
+                ],
+                "summary": "Update an activity",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Activity ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Activity update object",
+                        "name": "activity",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entities.CreateActivityRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -140,7 +249,12 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "Remove a book from the collection",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Remove an activity from the collection",
                 "consumes": [
                     "application/json"
                 ],
@@ -148,18 +262,16 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Books"
+                    "Activities"
                 ],
-                "summary": "Delete a book",
+                "summary": "Delete an activity",
                 "parameters": [
                     {
-                        "description": "Delete request with book ID",
-                        "name": "deleteRequest",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/entities.DeleteRequest"
-                        }
+                        "type": "integer",
+                        "description": "Activity ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -172,6 +284,20 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -444,31 +570,23 @@ const docTemplate = `{
                 }
             }
         },
-        "entities.Book": {
+        "entities.CreateActivityRequest": {
             "type": "object",
+            "required": [
+                "activityType",
+                "doneAt",
+                "durationInMinutes"
+            ],
             "properties": {
-                "author": {
+                "activityType": {
                     "type": "string"
                 },
-                "createdAt": {
+                "doneAt": {
                     "type": "string"
                 },
-                "id": {
-                    "type": "integer"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
-        },
-        "entities.DeleteRequest": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
+                "durationInMinutes": {
+                    "type": "integer",
+                    "minimum": 1
                 }
             }
         },
@@ -493,23 +611,6 @@ const docTemplate = `{
                 "PreferenceCardio",
                 "PreferenceWeight"
             ]
-        },
-        "entities.UpdateBookRequest": {
-            "type": "object",
-            "required": [
-                "id"
-            ],
-            "properties": {
-                "author": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "title": {
-                    "type": "string"
-                }
-            }
         },
         "entities.UpdateProfile": {
             "type": "object",
@@ -586,24 +687,17 @@ const docTemplate = `{
                 "WeightLBS"
             ]
         }
-    },
-    "securityDefinitions": {
-        "BearerAuth": {
-            "type": "apiKey",
-            "name": "Authorization",
-            "in": "header"
-        }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0",
+	Version:          "",
 	Host:             "",
 	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "My API",
-	Description:      "This is my API with JWT auth",
+	Title:            "",
+	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

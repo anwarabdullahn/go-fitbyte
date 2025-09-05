@@ -6,14 +6,17 @@ import (
 	"github.com/spf13/viper"
 )
 
-// NewViper is a function to load config from config.json
-// You can change the implementation, for example load from env file, consul, etcd, etc
+// NewViper is a function to load config from .env file
 func NewViper() *viper.Viper {
 	config := viper.New()
 
-	config.SetConfigName("config")
-	config.SetConfigType("yaml")
+	// Set config to read from .env file
+	config.SetConfigName(".env")
+	config.SetConfigType("env")
 	config.AddConfigPath("./")
+	
+	// Enable reading from environment variables
+	config.AutomaticEnv()
 
 	err := config.ReadInConfig()
 

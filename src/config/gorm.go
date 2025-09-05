@@ -13,17 +13,23 @@ import (
 
 // NewGorm creates a new GORM database connection using PostgreSQL
 func NewGorm(config *viper.Viper) *gorm.DB {
-	username := config.GetString("database.username")
-	password := config.GetString("database.password")
-	host := config.GetString("database.host")
-	port := config.GetInt("database.ports")
-	dbName := config.GetString("database.name")
-	maxConnections := config.GetInt("database.maxConnections")
+	username := config.GetString("DATABASE_USERNAME")
+	password := config.GetString("DATABASE_PASSWORD")
+	host := config.GetString("DATABASE_HOST")
+	port := config.GetInt("DATABASE_PORTS")
+	dbName := config.GetString("DATABASE_NAME")
+	maxConnections := config.GetInt("DATABASE_MAXCONNECTIONS")
 
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable",
-		host, username, password, dbName, port)
+	var dsn string
+	if password == "" {
+		dsn = fmt.Sprintf("host=%s user=%s dbname=%s port=%d sslmode=disable",
+			host, username, dbName, port)
+	} else {
+		dsn = fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable",
+			host, username, password, dbName, port)
+	}
 
-	if username == "" || password == "" || host == "" || dbName == "" {
+	if username == "" || host == "" || dbName == "" {
 		log.Fatal("Database credentials are required")
 	}
 

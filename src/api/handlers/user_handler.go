@@ -8,12 +8,8 @@ import (
 	"go-fitbyte/src/pkg/entities"
 	"go-fitbyte/src/pkg/user"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
-
-var validate = validator.New()
-
 
 // GetMe is handler/controller which lists current user
 // @Summary      Get current user

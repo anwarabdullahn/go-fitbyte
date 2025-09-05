@@ -21,7 +21,7 @@ func NewService(r Repository) Service {
 	}
 }
 
-// UpdateBook is a service layer that helps update books in BookShop
+// UpdateProfile is a service layer that helps update user profiles
 func (s *service) UpdateProfile(user *entities.User) (*entities.User, error) {
 	return s.repository.UpdateProfile(user)
 }
