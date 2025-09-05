@@ -6,6 +6,7 @@ import (
 
 	"go-fitbyte/src/api/routes"
 	"go-fitbyte/src/config"
+	"go-fitbyte/src/pkg/activity"
 	"go-fitbyte/src/pkg/auth"
 	"go-fitbyte/src/pkg/book"
 	"go-fitbyte/src/pkg/entities"
@@ -31,8 +32,10 @@ func main() {
 	// Init DB (GORM)
 	db := config.NewGorm(v)
 
-	// Auto-migrate the Book entity
-	err := db.AutoMigrate(&entities.Book{}, &entities.User{}, &entities.UserFile{})
+
+	// Auto-migrate the entities
+	err := db.AutoMigrate(&entities.User{}, &entities.Book{}, &entities.UserFile{}, &entities.Activity{})
+
 	if err != nil {
 		log.Fatal("Failed to migrate database:", err)
 	}
@@ -43,6 +46,9 @@ func main() {
 
 	bookRepo := book.NewRepo(db)
 	bookService := book.NewService(bookRepo)
+
+	activityRepo := activity.NewRepo(db)
+	activityService := activity.NewService(activityRepo)
 
 	profileRepo := user.NewRepo(db)
 	profileService := user.NewService(profileRepo)
@@ -64,6 +70,7 @@ func main() {
 	routes.AuthRouter(api, authService, jwtManager)
 	routes.ProfileRouter(api, profileService, jwtManager)
 	routes.UserfileRouter(api, profileService, uploadFileService, jwtManager)
+	routes.ActivityRouter(api, activityService, jwtManager)
 
 	app.Use(swagger.New(swagger.Config{
 		BasePath: "/",

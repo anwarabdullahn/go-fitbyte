@@ -14,6 +14,7 @@ import (
 
 var validate = validator.New()
 
+
 // GetMe is handler/controller which lists current user
 // @Summary      Get current user
 // @Description Get user profile from JWT token
