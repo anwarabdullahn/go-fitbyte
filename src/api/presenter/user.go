@@ -23,7 +23,7 @@ type User struct {
 
 // BookSuccessResponse is the singular SuccessResponse that will be passed in the response by
 // Handler
-func UserSuccessResponse(data *entities.User) any {
+func ProfileSuccessResponse(data *entities.User) any {
 	return map[string]any{
 		"preference": data.Preference,
 		"weightUnit": data.WeightUnit,
@@ -33,17 +33,6 @@ func UserSuccessResponse(data *entities.User) any {
 		"email":      data.Email,
 		"name":       data.Name,
 		"imageUri":   data.ImageURI,
-	}
-}
-
-// BooksSuccessResponse is the list SuccessResponse that will be passed in the response by Handler
-func UsersSuccessResponse(data *[]User) *fiber.Map {
-
-	// return data
-	return &fiber.Map{
-		"status": true,
-		"data":   data,
-		"error":  nil,
 	}
 }
 

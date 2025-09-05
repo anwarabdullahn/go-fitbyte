@@ -13,23 +13,37 @@ import (
 
 var validate = validator.New()
 
-// GetCurrentUser is handler/controller which get current user
+// GetMe is handler/controller which lists current user
 // @Summary      Get current user
-// @Description  Retrieve a profile
+// @Description Get user profile from JWT token
 // @Tags         Profile
 // @Accept       json
 // @Produce      json
+// @Security BearerAuth
 // @Success      200   {object}  map[string]interface{}
 // @Failure      500   {object}  map[string]interface{}
 // @Router       /api/v1/user [get]
-func GetCurrentUser(service user.Service) fiber.Handler {
+func GetMe(service user.Service) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		data, err := service.FetchProfile()
+		// userIDStr, ok := c.Locals("user_id").(string)
+		// if !ok {
+		// 	return c.Status(fiber.StatusUnauthorized).
+		// 		JSON(presenter.ErrorResponse("invalid token user_id"))
+		// }
+
+		// // convert string -> uint
+		// uid64, err := strconv.ParseUint(userIDStr, 10, 32)
+
+		// if err != nil {
+		// 	return c.Status(fiber.StatusUnauthorized).
+		// 		JSON(presenter.ErrorResponse("invalid user_id format"))
+		// }
+		data, err := service.FetchUserById(uint(1))
 		if err != nil {
 			c.Status(http.StatusInternalServerError)
 			return c.JSON(presenter.UserErrorResponse(err))
 		}
-		return c.JSON(presenter.UserSuccessResponse(data))
+		return c.JSON(presenter.ProfileSuccessResponse(data))
 	}
 }
 
