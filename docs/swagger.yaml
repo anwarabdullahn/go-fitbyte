@@ -24,6 +24,20 @@ definitions:
       updatedAt:
         type: string
     type: object
+  entities.CreateActivityRequest:
+    properties:
+      activityType:
+        type: string
+      doneAt:
+        type: string
+      durationInMinutes:
+        minimum: 1
+        type: integer
+    required:
+    - activityType
+    - doneAt
+    - durationInMinutes
+    type: object
   entities.DeleteRequest:
     properties:
       id:
@@ -112,6 +126,204 @@ info:
   title: My API
   version: "1.0"
 paths:
+  /api/v1/activity:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of all activities for the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get all activities
+      tags:
+      - Activities
+    post:
+      consumes:
+      - application/json
+      description: Add a new activity to the collection
+      parameters:
+      - description: Activity object
+        in: body
+        name: activity
+        required: true
+        schema:
+          $ref: '#/definitions/entities.CreateActivityRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a new activity
+      tags:
+      - Activities
+  /api/v1/activity/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Remove an activity from the collection
+      parameters:
+      - description: Activity ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete an activity
+      tags:
+      - Activities
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a specific activity by its ID
+      parameters:
+      - description: Activity ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get activity by ID
+      tags:
+      - Activities
+    put:
+      consumes:
+      - application/json
+      description: Update an existing activity
+      parameters:
+      - description: Activity ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Activity update object
+        in: body
+        name: activity
+        required: true
+        schema:
+          $ref: '#/definitions/entities.CreateActivityRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update an activity
+      tags:
+      - Activities
   /api/v1/books:
     delete:
       consumes:
