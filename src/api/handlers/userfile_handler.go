@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"go-fitbyte/src/api/presenter"
 	"go-fitbyte/src/pkg/entities"
 	"go-fitbyte/src/pkg/user"
@@ -8,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -72,6 +74,19 @@ func UploadUserFile(userService user.Service, userfileService userfile.Service) 
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).
 				JSON(presenter.ErrorResponse("file is required"))
+		}
+		//validate file
+		ext := strings.ToLower(filepath.Ext(file.Filename))
+		fmt.Println(ext)
+		if ext != ".jpg" && ext != ".jpeg" && ext != ".png" {
+			return c.Status(fiber.StatusBadRequest).SendString("Hanya file gambar yang diperbolehkan")
+		}
+
+		//validasi ukuran
+		// Validasi ukuran file (max 100 KB)
+		const maxSize = 100 * 1024 // 100 KB
+		if file.Size > maxSize {
+			return c.Status(fiber.StatusBadRequest).SendString("Ukuran file maksimal 100KB")
 		}
 
 		// bikin folder user -> uploads/<email>/

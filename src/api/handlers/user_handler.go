@@ -8,8 +8,11 @@ import (
 	"go-fitbyte/src/pkg/entities"
 	"go-fitbyte/src/pkg/user"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
+
+var validateUser = validator.New()
 
 // GetMe is handler/controller which lists current user
 // @Summary      Get current user
@@ -80,7 +83,7 @@ func UpdateProfile(service user.Service) fiber.Handler {
 		}
 
 		// 3. Validasi request
-		if err = validate.Struct(requestBody); err != nil {
+		if err = validateUser.Struct(requestBody); err != nil {
 			return c.Status(http.StatusBadRequest).
 				JSON(presenter.ErrorResponse(err.Error()))
 		}
