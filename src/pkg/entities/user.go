@@ -23,7 +23,7 @@ const (
 type User struct {
 	ID         uint           `gorm:"primaryKey;autoIncrement" json:"id"`
 	Preference PreferenceType `gorm:"type:preference_type;default:null;" json:"preference" validate:"oneof=CARDIO WEIGHT"`
-	Email      string         `gorm:"not null" json:"email" validate:"required,email"`
+	Email      string         `gorm:"not null;uniqueIndex" json:"email" validate:"required,email"`
 	Password   string         `gorm:"not null" json:"password" validate:"required,min=8,max=32"`
 	Name       string         `gorm:"size:60;default:null;column:name;" json:"name" validate:"omitempty,min=2,max=60"`
 	WeightUnit WeightUnitType `gorm:"type:weight_unit_type;column:weightunit;default:null" json:"weightUnit" validate:"oneof=KG LBS"`
@@ -33,7 +33,7 @@ type User struct {
 	ImageURI   string         `gorm:"default:null;size:255;column:imageuri" json:"imageUri" validate:"omitempty,url"`
 
 	// Relasi One-to-One ke UserFile
-	UserFile UserFile `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"userFile"`
+	UserFile UserFile `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"userFile"`
 }
 type UserDeleteRequest struct {
 	ID uuid.UUID `json:"id"`

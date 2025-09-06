@@ -82,14 +82,13 @@ func UploadUserFile(userService user.Service, userfileService userfile.Service) 
 			return c.Status(fiber.StatusBadRequest).SendString("Hanya file gambar yang diperbolehkan")
 		}
 
-		//validasi ukuran
 		// Validasi ukuran file (max 100 KB)
 		const maxSize = 100 * 1024 // 100 KB
 		if file.Size > maxSize {
 			return c.Status(fiber.StatusBadRequest).SendString("Ukuran file maksimal 100KB")
 		}
 
-		// bikin folder user -> uploads/<email>/
+		// folder
 		dirPath := filepath.Join("uploads", user.Email)
 		if err := os.MkdirAll(dirPath, os.ModePerm); err != nil {
 			return c.Status(fiber.StatusInternalServerError).

@@ -6,8 +6,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func UserFileSuccessResponse(data *entities.UserFile) any {
-	return map[string]string{
+func UserFileSuccessResponse(data *entities.UserFile) *fiber.Map {
+	return &fiber.Map{
 		"uri": data.URI,
 	}
 }

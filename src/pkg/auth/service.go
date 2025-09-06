@@ -9,6 +9,7 @@ import (
 type Service interface {
 	Register(user *entities.User) (*entities.User, error)
 	Login(user *entities.User) (*entities.User, error)
+	FindByEmail(email string) (*entities.User, error)
 }
 
 type service struct {
@@ -34,8 +35,18 @@ func (s *service) Login(req *entities.User) (*entities.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)) != nil {
-		return nil, err
+	if user == nil {
+		return nil, nil
+	}
+	// cek password
+	if compareErr := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); compareErr != nil {
+		return nil, compareErr
 	}
 	return user, nil
+}
+
+func (s *service) FindByEmail(email string) (*entities.User, error) {
+	user, err := s.repo.FindByEmail(email)
+
+	return user, err
 }

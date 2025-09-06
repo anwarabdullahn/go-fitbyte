@@ -8,8 +8,11 @@ import (
 	"go-fitbyte/src/pkg/auth"
 	"go-fitbyte/src/pkg/entities"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
+
+var validateAuth = validator.New()
 
 // Register is handler/controller which create new user
 // @Summary      Create new user
@@ -28,6 +31,18 @@ func Register(service auth.Service) fiber.Handler {
 		if err := c.BodyParser(&req); err != nil {
 			return c.Status(http.StatusBadRequest).
 				JSON(presenter.ErrorResponse("invalid request body"))
+		}
+
+		if errValidasi := validateAuth.Struct(req); errValidasi != nil {
+			return c.Status(http.StatusBadRequest).
+				JSON(presenter.ErrorResponse(errValidasi.Error()))
+		}
+
+		// cek email apakah sudah terdaftar
+		existingUser, _ := service.FindByEmail(req.Email)
+		if existingUser != nil {
+			return c.Status(http.StatusConflict).
+				JSON(presenter.ErrorResponse("email already registered"))
 		}
 
 		postData := &entities.User{
@@ -62,6 +77,11 @@ func Login(service auth.Service, jwtManager *auth.JWTManager) fiber.Handler {
 		if err := c.BodyParser(&req); err != nil {
 			return c.Status(http.StatusBadRequest).
 				JSON(presenter.ErrorResponse("invalid request body"))
+		}
+
+		if errValidasi := validateAuth.Struct(req); errValidasi != nil {
+			return c.Status(http.StatusBadRequest).
+				JSON(presenter.ErrorResponse(errValidasi.Error()))
 		}
 
 		postData := &entities.User{
