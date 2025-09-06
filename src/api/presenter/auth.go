@@ -9,20 +9,11 @@ import (
 // Response kalau register/login success
 func UserSuccessResponse(user *entities.User) *fiber.Map {
 	return &fiber.Map{
-		"status": true,
-		"data": fiber.Map{
-			"id":    user.ID,
-			"email": user.Email,
-		},
-		"error": nil,
+		"email": user.Email,
 	}
 }
 
 // Error response
-func ErrorResponse(msg string) *fiber.Map {
-	return &fiber.Map{
-		"status": false,
-		"data":   nil,
-		"error":  msg,
-	}
+func ErrorResponse(msg string) string {
+	return msg
 }
